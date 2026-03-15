@@ -12,6 +12,10 @@ html, body {
     margin: 0;
 }
 
+main {
+    flex: 1;
+}
+
 body {
     display: flex;
     flex-direction: column;
