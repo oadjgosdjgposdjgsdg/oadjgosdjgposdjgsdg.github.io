@@ -1,0 +1,70 @@
+<head>
+    <link rel="stylesheet" href="base.css">
+</head>
+
+<style>
+    body {
+        margin: 0;
+    }
+
+    nav#navbar {
+        position: sticky;
+        top: 0;
+        z-index: 300;
+        background: var(--foreground-color);
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    nav#navbar ul {
+        list-style: none;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 24px;
+        height: 64px;
+        margin: 0;
+        padding: 0 24px;
+    }
+
+    nav#navbar .logo {
+        font-weight: 600;
+        font-size: 18px;
+        padding: 8px 18px;
+        border-radius: 12px;
+        background: var(--accent-color);
+        color: var(--text-color);
+        user-select: none;
+    }
+
+    nav#navbar a {
+        display: block;
+        padding: 10px 20px;
+        border-radius: 12px;
+        color: var(--text-color);
+        text-decoration: none;
+        background: transparent;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    }
+
+    nav#navbar a:hover {
+        background: #3a3a3a;
+        box-shadow: 0 0 6px rgba(58, 58, 58, 0.6);
+        transform: scale(1.05);
+    }
+
+    nav#navbar a.active {
+        font-weight: bold;
+        color: #f1f1f1;
+    }
+</style>
+
+<body>
+    <nav id="navbar">
+        <ul>
+            <li class="logo">CarZoneDB</li>
+            <li><a href="/home">Home</a></li>
+            <li><a href="/cars">Cars</a></li>
+            <li><a href="/races">Races</a></li>
+        </ul>
+    </nav>
+</body>
