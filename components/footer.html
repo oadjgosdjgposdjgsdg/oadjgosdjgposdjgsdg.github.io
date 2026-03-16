@@ -37,3 +37,11 @@
       <button id="discordUsernameCopy" aria-label="Copy Discord username" title="Click to copy">flamespill</button>
     </p>
   </footer>
+
+<script>
+    document.getElementById('discordUsernameCopy').addEventListener('click', () => {
+      navigator.clipboard.writeText('flamespill')
+        .then(() => alert('Discord Username has been copied to clipboard'))
+        .catch(console.error);
+    });
+</script>
