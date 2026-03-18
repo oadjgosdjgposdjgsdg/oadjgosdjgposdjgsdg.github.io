@@ -18,37 +18,23 @@ Promise.all([
   const carDate = format(carUpdated);
   const raceDate = format(raceUpdated);
 
-  let updatedText;
+document.getElementById('carsStats').innerHTML = `
+  <div class="stat-number">${totalCars.toLocaleString()}</div>
+  <div class="stat-label">Cars</div>
+  <div class="stat-updated">Last Updated:</div>
+  <div class="stat-date">${carDate}</div>
+`;
 
-  if (carDate === raceDate) {
-    updatedText = `
-      Database Last Updated:
-      <span style="color:#8E5CF6; font-weight:bold;">
-        ${carDate}
-      </span>
-    `;
-  } else {
-    updatedText = `
-      Cars Last Updated:
-      <span style="color:#8E5CF6; font-weight:bold;">${carDate}</span><br>
-      Races Last Updated:
-      <span style="color:#8E5CF6; font-weight:bold;">${raceDate}</span>
-    `;
-  }
-
-  document.getElementById('databasestats').innerHTML = `
-    Currently keeping track of 
-    <span style="color:#8E5CF6; font-weight:bold;">
-      ${totalCars.toLocaleString()}
-    </span> cars and 
-    <span style="color:#8E5CF6; font-weight:bold;">
-      ${totalRaces.toLocaleString()}
-    </span> races in the game — and counting.<br>
-    ${updatedText}
-  `;
+document.getElementById('racesStats').innerHTML = `
+  <div class="stat-number">${totalRaces.toLocaleString()}</div>
+  <div class="stat-label">Races</div>
+  <div class="stat-updated">Last Updated:</div>
+  <div class="stat-date">${raceDate}</div>
+`;
 
 })
 .catch(err => {
-  document.getElementById('databasestats').textContent = 'Failed to load stats.';
+  document.getElementById('carsStats').textContent = 'Failed to load stats.';
+document.getElementById('racesStats').textContent = 'Failed to load stats.';
   console.error(err);
 });
