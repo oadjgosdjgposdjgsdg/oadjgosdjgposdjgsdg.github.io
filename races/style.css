@@ -1,0 +1,118 @@
+.sect {
+  padding: 40px;
+}
+
+/* GRID */
+.card-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+}
+
+/* CARD */
+.card {
+  background: var(--foreground-color);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px;
+  transition: transform 0.2s;
+}
+
+.card:hover {
+  transform: scale(1.03);
+}
+
+h2 {
+    margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 1.5rem;
+  color: var(--text-color);
+  word-break: break-word;
+}
+
+/* HEADER */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+/* BUTTON */
+.map-btn {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background: var(--accent-color);
+  color: white;
+}
+
+
+/* BADGES */
+.badges {
+  margin: 10px 0;
+  display: flex;
+  gap: 6px;
+
+}
+
+.badge {
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  color: white;
+      margin-bottom: 12px;
+}
+
+.badge.easy { background: #22c55e; }
+.badge.medium { background: #f59e0b; }
+.badge.hard { background: #ef4444; }
+
+/* DETAILS */
+.details {
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+
+/* REWARDS */
+.reward {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+}
+
+.reward .xp {
+  opacity: 0.7;
+}
+
+/* MODAL */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+    position: relative;
+  background: var(--foreground-color);
+  padding: 16px;
+  border-radius: 12px;
+}
+
+.modal img {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+.close {
+  cursor: pointer;
+  font-size: 20px;
+    position: absolute;
+  top: 0;
+  right: 0;
+  padding: 10px;
+}
