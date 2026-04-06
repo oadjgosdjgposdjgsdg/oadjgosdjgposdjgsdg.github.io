@@ -1,0 +1,151 @@
+// ===== Dropdown =====
+function toggleDropdown(button) {
+  const menu = button.nextElementSibling;
+
+  document.querySelectorAll(".dropdown-menu").forEach(d => {
+    if (d !== menu) d.classList.remove("active", "flip-left");
+  });
+
+  menu.classList.toggle("active");
+
+  if (menu.classList.contains("active")) {
+    // Reset first
+    menu.classList.remove("flip-left");
+
+    const rect = menu.getBoundingClientRect();
+
+    // If overflowing right side of screen
+    if (rect.right > window.innerWidth) {
+      menu.classList.add("flip-left");
+    }
+  }
+}
+
+// ===== DATA =====
+let carsData = [];
+
+// ===== RENDER =====
+function renderCars(data) {
+  // Make sure #carList uses grid layout in CSS
+  carList.innerHTML = data.length
+    ? data.map(car => {
+        const packLinks = {
+          'vip': 'https://www.roblox.com/game-pass/984631403/VIP',
+          'starter pack': 'https://www.roblox.com/game-pass/984407482/Starter-Pack',
+          'hyper pack': 'https://www.roblox.com/game-pass/1260965456/Hyper-Pack',
+          'track pack': 'https://www.roblox.com/game-pass/1105690213/Track-Pack'
+        };
+        const packKey = car.PACKNAME?.toLowerCase().trim();
+        const packLink = packLinks[packKey] || null;
+
+        // sanitize id
+        const safeId = car.CarName.replace(/[^a-z0-9]+/gi, "-").toLowerCase();
+
+        return `
+<article class="car" id="car-${safeId}" tabindex="0">
+  <h2>${car.CarName}</h2>
+
+  <div class="badges">
+    ${car.NEWCAR ? '<span class="badge new">NEW</span>' : ''}
+    ${car.TYPE === 'Limited' ? '<span class="badge limited">Limited</span>' : ''}
+    ${car.BodyKits ? '<span class="badge">BodyKit</span>' : ''}
+    ${car.GAMEPASSID ? '<span class="badge gamepass">Gamepass</span>' : ''}
+    ${packLink 
+        ? `<a href="${packLink}" target="_blank" class="badge pack" title="Click to view this pack on Roblox">${car.PACKNAME} 🔗</a>` 
+        : (car.PACKNAME ? `<span class="badge pack">${car.PACKNAME}</span>` : '')
+    }
+  </div>
+
+  <div class="car-details">
+    <div><strong>Price:</strong> $${car.PRICE?.toLocaleString() || 'N/A'}</div>
+    <div><strong>Horse Power:</strong> ${car.POWER || 'N/A'} HP</div>
+    <div><strong>V-Max:</strong> ${car.VMAX || 'N/A'} MPH</div>
+    <div><strong>Acceleration:</strong> 0-60 in ${car.ACC || 'N/A'} sec</div>
+    <div><strong>EXP for Driving:</strong> ${car.EXP || 'N/A'}</div>
+    <div><strong>Type:</strong> ${car.TYPE || 'N/A'}</div>
+    <div><strong>In Shop:</strong> ${car.SHOP ? 'Yes' : 'No'}</div>
+  </div>
+</article>
+        `;
+      }).join('')
+    : '<p>No cars match your criteria.</p>';
+}
+
+// ===== FILTER =====
+function applyFilters() {
+  const search = document.querySelector(".filter-input").value.toLowerCase();
+
+  const types = [...document.querySelectorAll(".filter-dropdown:nth-of-type(1) input:checked")]
+    .map(i => i.value);
+
+  const shop = [...document.querySelectorAll(".filter-dropdown:nth-of-type(2) input:checked")]
+    .map(i => i.value);
+
+  const chips = document.querySelectorAll(".filter-chip");
+
+  const body = chips[0].classList.contains("active");
+  const newC = chips[1].classList.contains("active");
+  const gamepass = chips[2].classList.contains("active");
+
+  const priceMode = document.querySelector("input[name='price']:checked").value;
+  const min = Number(document.getElementById("minPrice").value) || 0;
+  const max = Number(document.getElementById("maxPrice").value) || Infinity;
+
+  let filtered = carsData.filter(car => {
+
+    if (!car.CarName.toLowerCase().includes(search)) return false;
+
+    if (types.length) {
+      const type = car.TYPE.toLowerCase().replace(" car", "");
+      if (!types.includes(type)) return false;
+    }
+
+    if (shop.length) {
+      const val = car.SHOP ? "available" : "unavailable";
+      if (!shop.includes(val)) return false;
+    }
+
+    if (body && !car.BodyKits) return false;
+    if (newC && !car.NEWCAR) return false;
+    if (gamepass && !car.GAMEPASSID) return false;
+
+    if (priceMode === "range") {
+      if (car.PRICE < min || car.PRICE > max) return false;
+    }
+
+    return true;
+  });
+
+  if (priceMode === "low-high") {
+    filtered.sort((a,b)=>a.PRICE-b.PRICE);
+  } else if (priceMode === "high-low") {
+    filtered.sort((a,b)=>b.PRICE-a.PRICE);
+  }
+
+  renderCars(filtered);
+}
+
+// ===== EVENTS =====
+document.querySelector(".filter-input").addEventListener("input", applyFilters);
+
+document.querySelectorAll(".filter-dropdown input").forEach(el => {
+  el.addEventListener("change", applyFilters);
+});
+
+document.querySelectorAll(".filter-chip").forEach(chip => {
+  chip.addEventListener("click", () => {
+    chip.classList.toggle("active");
+    applyFilters();
+  });
+});
+
+document.querySelectorAll("input[name='price'], #minPrice, #maxPrice")
+  .forEach(el => el.addEventListener("input", applyFilters));
+
+// ===== FETCH DATA =====
+fetch("https://raw.githubusercontent.com/CarZoneDB/CarZoneDB.github.io/refs/heads/main/czgameinfo/cars.json")
+  .then(res => res.json())
+  .then(data => {
+    carsData = Object.values(data).filter(c => c.CarName);
+    renderCars(carsData);
+  });
