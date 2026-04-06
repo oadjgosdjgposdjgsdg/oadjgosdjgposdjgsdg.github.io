@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Races</title>
+
+  <link rel="stylesheet" href="../components/base.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<main class="sect" aria-label="Race list">
+  <div id="raceList">
+    <div class="card-container" id="card-container"></div>
+  </div>
+</main>
+
+<!-- Map Modal -->
+<div id="mapModal" class="modal" onclick="closeMap()">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <span class="close" onclick="closeMap()">&times;</span>
+    <img id="mapImage" src="" alt="Map">
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
