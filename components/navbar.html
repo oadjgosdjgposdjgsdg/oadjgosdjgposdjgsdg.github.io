@@ -89,25 +89,40 @@
 
     /* ===== MOBILE / SMALL SCREEN ===== */
     @media (max-width: 600px) {
-        nav#navbar ul {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 8px;
+    nav#navbar ul {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
 
-            padding: 12px;
-            min-height: unset;
-        }
+        padding: 12px;
+        min-height: unset;
 
-        nav#navbar .logo {
-            text-align: center;
-            width: 100%;
-        }
-
-        nav#navbar a {
-            width: 100%;
-            text-align: center;
-        }
+        /* important: prevents horizontal overflow */
+        width: 100%;
+        box-sizing: border-box;
     }
+
+    nav#navbar li {
+        width: 100%;
+    }
+
+    nav#navbar .logo {
+        width: 100%;
+        text-align: center;
+
+        /* key fixes */
+        box-sizing: border-box;
+        max-width: 100%;
+        overflow-wrap: break-word;
+    }
+
+    nav#navbar a {
+        width: 100%;
+        text-align: center;
+
+        box-sizing: border-box;
+    }
+}
 </style>
 
 <body>
