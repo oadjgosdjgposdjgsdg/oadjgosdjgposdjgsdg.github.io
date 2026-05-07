@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://unpkg.com/fflate@0.8.2/umd/index.js"></script>
+
+<style>
+body{background:#111;color:#ddd;font:14px monospace;padding:10px;margin:0}
+input,select,button{margin:2px}
+#log{height:40vh;min-height:200px;overflow:auto;background:#000;padding:6px;border-radius:8px}
+#guide{background:#181818;padding:10px;margin-bottom:8px;line-height:1.45;border-radius:8px}
+
+.controls{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+
+@media (max-width:600px){
+  .controls{flex-direction:column}
+  input,select,button{width:100%;font-size:16px;padding:10px}
+}
+</style>
+
+<button id="toggleGuide" onclick="toggleGuide()">
+  ▲ Hide Guide
+</button>
+
+<div id="guide">
+<b>Tool made by flamespill for carzonedb.github.io</b><br>
+<b>It is recommended to download the HTML and run it locally on your PC.</b><br>
+When run online (e.g. via GitHub), requests may go through shared servers and hit global rate limits.
+Running locally uses your own IP, making downloads faster and more reliable.<br>
+<button onclick="downloadHTML()">⬇ Download this HTML</button><br><br>
+
+<b>• Batch</b><br>
+How many cars are requested per API call.<br>
+→ <b>100 = best balance</b> (fast + safe)<br><br>
+
+<b>• Resolution</b><br>
+→ 150x150 = fastest, low quality<br>
+→ <b>420x420 = best overall (recommended)</b><br>
+→ 700x700 = highest possible<br><br>
+
+<b>• Skip invalid</b><br>
+Skips broken, empty, or not-yet-generated thumbnails.<br><br>
+
+<b>• ZIP filename</b><br>
+Saved as:<br>
+<b>CarZone_images_YYYY-MM-DDTHH-MM-SS.zip</b><br>
+Example:<br>
+CarZone_images_2026-03-18T12-34-56.zip<br>
+→ Includes the exact date & time of download<br><br>
+
+<b>Speed is auto-adjusted to avoid rate limits.</b>
+</div>
+
+<div class="controls">
+Batch <input id=b type=number value=100 min=1 max=100>
+
+<select id=s>
+  <option>150x150 (Fast)</option>
+  <option selected>420x420 (Best)</option>
+  <option>700x700 (Max)</option>
+</select>
+
+<label>
+  <input id=sk type=checkbox checked>
+  Skip invalid
+</label>
+
+<button onclick="start()">Start</button>
+<button onclick="abortAll()">Abort</button>
+</div>
+
+<div id="log"></div>
+
+<script>
+function toggleGuide(){
+  const g = document.getElementById("guide");
+  const btn = document.getElementById("toggleGuide");
+
+  if(g.style.display === "none"){
+    g.style.display = "block";
+    btn.textContent = "▲ Hide Guide";
+  } else {
+    g.style.display = "none";
+    btn.textContent = "▼ Show Guide";
+  }
+}
+
+async function downloadHTML(){
+  try{
+    const url = "https://raw.githubusercontent.com/CarZoneDB/CarZoneDB.github.io/refs/heads/main/assets/tools/caricondownloader.html";
+
+    const res = await fetch(url, {cache: "no-store"});
+    const text = await res.text();
+
+    const blob = new Blob([text], {type: "text/html"});
+    const a = document.createElement("a");
+
+    a.href = URL.createObjectURL(blob);
+    a.download = "carzone_caricondownloader.html";
+    a.click();
+
+  }catch(e){
+    console.log("Failed to download HTML.");
+  }
+}
+
+let abort=0;
+let adjustLoop;
+
+const logEl=document.getElementById("log");
+const log=t=>{
+  logEl.innerHTML+=t+"<br>";
+  logEl.scrollTop=1e9;
+};
+
+const sleep=t=>new Promise(r=>setTimeout(r,t));
+
+let concurrency=8,maxC=64,minC=2,err=0,ok=0;
+
+function adjust(){
+  if(ok===0 && err===0) return;
+
+  const ratio=err/(ok+err+1);
+
+  if(ratio>0.2 && concurrency>minC){
+    concurrency=Math.max(minC,(concurrency*0.7)|0);
+    log("↓ Throttling → "+concurrency);
+  }
+  else if(ratio<0.05 && concurrency<maxC){
+    concurrency++;
+    log("↑ Increasing speed → "+concurrency);
+  }
+
+  err=0; ok=0;
+}
+
+function abortAll(){
+  abort=1;
+  clearInterval(adjustLoop);
+  log("Abort requested...");
+}
+
+async function runQueue(queue){
+  let active=0;
+
+  return new Promise(resolve=>{
+    function next(){
+      if(abort) return resolve();
+
+      while(active<concurrency && queue.length){
+        active++;
+
+        queue.shift()().finally(()=>{
+          active--;
+          next();
+        });
+      }
+
+      if(!active && !queue.length){
+        resolve();
+      }
+    }
+    next();
+  });
+}
+
+function fetchXHR(url, type="text"){
+  return new Promise((resolve,reject)=>{
+    const xhr=new XMLHttpRequest();
+    xhr.open("GET",url,true);
+    xhr.responseType=type==="arraybuffer"?"arraybuffer":"text";
+
+    xhr.onload=()=>{
+      if(xhr.status>=200 && xhr.status<300){
+        resolve({
+          ok:true,
+          status:xhr.status,
+          json:()=>Promise.resolve(JSON.parse(xhr.responseText)),
+          arrayBuffer:()=>Promise.resolve(xhr.response)
+        });
+      } else reject(xhr.status);
+    };
+
+    xhr.onerror=()=>reject("network");
+    xhr.send();
+  });
+}
+
+async function fetchSafe(url,type){
+  for(let i=0;i<4;i++){
+    if(abort) throw "aborted";
+
+    try{
+      let r;
+      try{
+        r=await fetch(url,{cache:"no-store"});
+      }catch{
+        r=await fetchXHR(url,type);
+      }
+
+      if(r.status===429){
+        err++;
+        await sleep(200*2**i);
+        continue;
+      }
+
+      if(!r.ok) throw 0;
+
+      ok++;
+      return r;
+
+    }catch{
+      err++;
+      if(i===3) throw 0;
+      await sleep(200*2**i);
+    }
+  }
+}
+
+async function start(){
+  abort=0;
+  logEl.innerHTML="";
+  concurrency=8;
+
+  const B=+b.value||100;
+  const S=s.value.split(" ")[0];
+  const SK=sk.checked;
+
+  log("Loading car list...");
+
+  let data;
+  try{
+    const r=await fetchSafe(
+      "https://raw.githubusercontent.com/CarZoneDB/CarZoneDB.github.io/refs/heads/main/assets/infojsons/cars.json"
+    );
+    data=await r.json();
+  }catch{
+    log("Failed to load car list.");
+    return;
+  }
+
+  const cars=Object.entries(data)
+    .filter(x=>x[1]?.ICON)
+    .map(([n,v])=>({n,id:v.ICON.replace("rbxassetid://","")}));
+
+  log("Images found: "+cars.length);
+
+  adjustLoop=setInterval(adjust,1500);
+
+  let resolved=[],queue=[];
+
+  for(let i=0;i<cars.length;i+=B){
+    const group=cars.slice(i,i+B);
+
+    queue.push(async()=>{
+      if(abort) return;
+
+      try{
+        const r=await fetchSafe(
+          `https://thumbnails.roproxy.com/v1/assets?assetIds=${group.map(x=>x.id)}&size=${S}&format=png`
+        );
+        const j=await r.json();
+
+        j.data.forEach((d,i)=>{
+          if(d?.imageUrl){
+            resolved.push({n:group[i].n,u:d.imageUrl});
+          }else{
+            log("Skip: "+group[i].n);
+          }
+        });
+
+      }catch{
+        group.forEach(c=>log("Resolve failed: "+c.n));
+      }
+    });
+  }
+
+  await runQueue(queue);
+
+  if(abort){
+    clearInterval(adjustLoop);
+    log("Aborted.");
+    return;
+  }
+
+  log("Resolved: "+resolved.length);
+
+  const chunks=[];
+  let done;
+  const ready=new Promise(r=>done=r);
+
+  const zip=new fflate.Zip((e,c,f)=>{
+    if(!e) chunks.push(c);
+    if(f) done();
+  });
+
+  const add=(name,data)=>{
+    const f=new fflate.ZipPassThrough(name);
+    zip.add(f);
+    f.push(data,true);
+  };
+
+  let dlQueue=resolved.map(({n,u})=>async()=>{
+    if(abort) return;
+
+    try{
+      log("Downloading: "+n);
+
+      const r=await fetchSafe(u,"arraybuffer");
+      const buf=new Uint8Array(await r.arrayBuffer());
+
+      if(SK && buf.length < 2000){
+        log("Skipped: "+n);
+        return;
+      }
+
+      add("czcarimages/"+n.replace(/\W/g,"_")+".png",buf);
+      log("Saved: "+n);
+
+    }catch{
+      log("Failed: "+n);
+    }
+  });
+
+  await runQueue(dlQueue);
+
+  clearInterval(adjustLoop);
+
+  if(abort){
+    zip.end();
+    log("Aborted.");
+    return;
+  }
+
+  const stamp=new Date().toISOString().replace(/[:.]/g,"-");
+  const filename=`CarZone_car_images_${stamp}.zip`;
+
+  log("Finalizing ZIP...");
+  zip.end();
+  await ready;
+
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob(chunks));
+  a.download=filename;
+  a.click();
+
+  log("DONE ✔ → "+filename);
+}
+</script>
