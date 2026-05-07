@@ -8,8 +8,7 @@
         --font-family: 'Segoe UI', Arial, sans-serif;
     }
 
-    html,
-    body {
+    html, body {
         height: 100%;
         margin: 0;
     }
@@ -31,26 +30,25 @@
         position: sticky;
         top: 0;
         z-index: 300;
-
         background: var(--foreground-color);
         border-bottom: 1px solid var(--border-color);
-
-        overflow: hidden;
     }
 
     nav#navbar ul {
         list-style: none;
-
         display: flex;
         align-items: center;
         gap: 24px;
 
         min-height: 64px;
-
         margin: 0;
         padding: 0 24px;
 
         flex-wrap: nowrap;
+    }
+
+    nav#navbar li {
+        flex: 0 0 auto;
     }
 
     nav#navbar .logo {
@@ -69,18 +67,13 @@
 
     nav#navbar a {
         display: block;
-
         padding: 10px 20px;
         border-radius: 12px;
 
         color: var(--text-color);
         text-decoration: none;
 
-        background: transparent;
-
-        transition:
-            transform 0.2s ease,
-            background-color 0.2s ease;
+        transition: transform 0.2s ease, background-color 0.2s ease;
 
         white-space: nowrap;
     }
@@ -92,6 +85,28 @@
 
     nav#navbar a.active {
         font-weight: bold;
+    }
+
+    /* ===== MOBILE / SMALL SCREEN ===== */
+    @media (max-width: 600px) {
+        nav#navbar ul {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 8px;
+
+            padding: 12px;
+            min-height: unset;
+        }
+
+        nav#navbar .logo {
+            text-align: center;
+            width: 100%;
+        }
+
+        nav#navbar a {
+            width: 100%;
+            text-align: center;
+        }
     }
 </style>
 
