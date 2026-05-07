@@ -1,55 +1,97 @@
 <style>
+    :root {
+        --accent-color: rgb(142, 92, 246);
+        --background-color: rgb(36, 36, 36);
+        --foreground-color: rgb(43, 43, 43);
+        --border-color: rgb(58, 58, 58);
+        --text-color: rgb(241, 241, 241);
+        --font-family: 'Segoe UI', Arial, sans-serif;
+    }
+
+    html,
     body {
+        height: 100%;
         margin: 0;
+    }
+
+    body {
+        background: var(--background-color);
+        color: var(--text-color);
+        font-family: var(--font-family);
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    main {
+        flex: 1;
     }
 
     nav#navbar {
         position: sticky;
         top: 0;
         z-index: 300;
+
         background: var(--foreground-color);
         border-bottom: 1px solid var(--border-color);
+
+        overflow: hidden;
     }
 
     nav#navbar ul {
         list-style: none;
+
         display: flex;
         align-items: center;
-        flex-wrap: wrap;
         gap: 24px;
-        height: 64px;
+
+        min-height: 64px;
+
         margin: 0;
         padding: 0 24px;
+
+        flex-wrap: nowrap;
     }
 
     nav#navbar .logo {
         font-weight: 600;
         font-size: 18px;
+
         padding: 8px 18px;
         border-radius: 12px;
+
         background: var(--accent-color);
         color: var(--text-color);
+
         user-select: none;
+        white-space: nowrap;
     }
 
     nav#navbar a {
         display: block;
+
         padding: 10px 20px;
         border-radius: 12px;
+
         color: var(--text-color);
         text-decoration: none;
+
         background: transparent;
-        transition: transform 0.2s ease, background-color 0.2s ease;
+
+        transition:
+            transform 0.2s ease,
+            background-color 0.2s ease;
+
+        white-space: nowrap;
     }
 
     nav#navbar a:hover {
         background: var(--border-color);
-        transform: scale(1.05);
+        transform: scale(1.02);
     }
 
     nav#navbar a.active {
         font-weight: bold;
-        color: var(--text-color);
     }
 </style>
 
