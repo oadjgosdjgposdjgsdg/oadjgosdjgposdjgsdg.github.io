@@ -1,0 +1,303 @@
+/* ===== Layout ===== */
+.sect {
+  padding: 40px;
+}
+
+/* ===== Filter Bar ===== */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--foreground-color);
+  border: 1px solid var(--border-color);
+}
+
+/* ===== Shared Base: Inputs & Buttons ===== */
+.filter-input,
+.filter-select,
+.filter-btn {
+  padding: 10px 14px;
+  min-height: 40px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background: var(--background-color);
+  color: var(--text-color);
+  font-size: 14px;
+}
+
+.filter-input {
+  flex: 1;
+  min-width: 200px;
+}
+
+.filter-select,
+.filter-btn {
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.filter-select:hover,
+.filter-btn:hover {
+  background: var(--foreground-color);
+  border-color: var(--accent-color);
+}
+
+/* ===== Chips ===== */
+.filter-chip {
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.filter-chip:hover {
+  border-color: var(--accent-color);
+}
+
+.filter-chip.active {
+  background: var(--accent-color);
+  color: #fff;
+  border-color: var(--accent-color);
+}
+
+/* ===== Dropdown Wrapper ===== */
+.filter-dropdown {
+  position: relative;
+}
+
+/* ===== Dropdown Menu ===== */
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 999;
+  min-width: 260px;
+  padding: 14px;
+  background: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+.dropdown-menu.active {
+  display: block;
+}
+
+/* Flip to right-align if overflowing viewport */
+.dropdown-menu.flip-left {
+  left: auto;
+  right: 0;
+}
+
+/* ===== Dropdown Header ===== */
+.dropdown-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.dropdown-header button {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+/* ===== Radios ===== */
+.radio {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.radio input[type="radio"] {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border-color);
+  border-radius: 50%;
+  position: relative;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.radio input[type="radio"]:checked {
+  border-color: var(--accent-color);
+}
+
+.radio input[type="radio"]:checked::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  background: var(--accent-color);
+  border-radius: 50%;
+}
+
+/* ===== Checkboxes ===== */
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.checkbox input[type="checkbox"] {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+  position: relative;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.checkbox input[type="checkbox"]:checked {
+  border-color: var(--accent-color);
+  background: var(--accent-color);
+}
+
+.checkbox input[type="checkbox"]:checked::after {
+  content: "✓";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--text-color);
+}
+
+/* ===== Price Range Inputs ===== */
+.range-inputs {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.range-inputs input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--foreground-color);
+  color: var(--text-color);
+}
+
+/* ===== Apply Button ===== */
+.apply-btn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: var(--accent-color);
+  color: #fff;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.apply-btn:hover {
+  opacity: 0.85;
+}
+
+/* ===== Car List Container thingy iDK MAN  */
+/* ===== Car Grid ===== */
+#carList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+  margin-top: 20px;
+}
+
+/* ===== Individual Car Card ===== */
+.car {
+  background-color: var(--foreground-color);
+  padding: 20px;
+  border-radius: 12px;
+  text-align: left;
+  border: 1px solid var(--border-color);
+  transition: transform 0.2s;
+}
+.car:hover {
+  transform: scale(1.05);
+}
+
+/* ===== Car Title ===== */
+.car h2 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 1.5rem;
+  color: var(--text-color);
+  word-break: break-word;
+}
+
+/* ===== Badges ===== */
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.badge {
+  background-color: var(--accent-color);
+  color: var(--text-color);
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  border-radius: 8px;
+}
+
+.badge.limited { background-color: #FF4DB8; }
+.badge.new { background-color: #FF3B3B; }
+.badge.gamepass { background-color: #1E90FF; }
+.badge.pack {
+  background-color: #FF9F1C;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.badge.pack:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 6px #FF9F1C;
+  text-decoration: underline;
+}
+
+/* ===== Car Stats ===== */
+.car-details div {
+  margin-bottom: 6px;
+  font-size: 0.95rem;
+  color: var(--text-color);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 600px) {
+  #carList {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+  }
+
+  .car {
+    padding: 16px;
+  }
+
+  .car h2 {
+    font-size: 1.25rem;
+  }
+
+  .car-details div {
+    font-size: 0.9rem;
+  }
+}
