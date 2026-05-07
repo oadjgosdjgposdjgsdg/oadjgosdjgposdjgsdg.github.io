@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CarZoneDB - Races</title>
+  <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/CarZoneDB/CarZoneDB.github.io/refs/heads/main/assets/favicon.png">
+  
+  <link rel="stylesheet" href="../components/base.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div id="navbar"></div>
+
+<main class="sect" aria-label="Race list">
+  <div id="raceList">
+    <div class="card-container" id="card-container"></div>
+  </div>
+</main>
+
+  <div id="footer"></div>
+
+  <script src="../components/elementloader.js"></script>
+  <script src="script.js"></script>
+  
+<!-- Map Modal -->
+<div id="mapModal" class="modal" onclick="closeMap()">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <span class="close" onclick="closeMap()">&times;</span>
+    <img id="mapImage" src="" alt="Map">
+  </div>
+</div>
+
+</body>
+</html>
