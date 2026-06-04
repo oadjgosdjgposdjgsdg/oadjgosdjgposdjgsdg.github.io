@@ -1,206 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>CarZoneDB - Upgrade Calculator</title>
-  <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/CarZoneDB/CarZoneDB.github.io/refs/heads/main/assets/favicon.png">
-  <meta
-    name="description"
-    content="Calculate the total cost of upgrading your car in Car Zone. Select a car and configure your upgrades to see the full price breakdown."
-  />
+
+  <link rel="icon" type="image/x-icon"
+    href="https://raw.githubusercontent.com/CarZoneDB/CarZoneDB.github.io/refs/heads/main/assets/favicon.png">
 
   <link rel="stylesheet" href="../components/base.css">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="../cars/style.css">
 
   <style>
-    /* ===== Two-panel layout ===== */
+    /* ===== Layout ===== */
+
+    .sect {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
     .calc-layout {
       display: grid;
-      grid-template-columns: 340px 1fr;
+      grid-template-columns: 380px minmax(0, 1fr);
       gap: 24px;
+      width: 100%;
+      max-width: 1600px;
+      margin: 0 auto;
       align-items: start;
     }
 
-    /* ===== Left panel ===== */
+    /* ===== Left Panel ===== */
+
     .panel-left {
-      background-color: var(--foreground-color);
-      border-radius: 12px;
+      background: var(--foreground-color);
       border: 1px solid var(--border-color);
+      border-radius: 14px;
       overflow: hidden;
       position: sticky;
       top: 20px;
     }
 
-    .panel-left-header {
-      padding: 14px 16px;
+    .panel-left .filter-bar {
+      padding: 14px;
       border-bottom: 1px solid var(--border-color);
-    }
-
-    .panel-left-header input {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 10px 14px;
-      min-height: 40px;
-      border-radius: 12px;
-      border: 1px solid var(--border-color);
-      background: var(--background-color);
-      color: var(--text-color);
-      font-size: 14px;
-      font-family: var(--font-family);
-      outline: none;
-      transition: border-color 0.2s ease;
-    }
-
-    .panel-left-header input:focus {
-      border-color: var(--accent-color);
-    }
-
-    /* ===== Car list inside left panel ===== */
-    .car-list-inner {
-      overflow-y: auto;
-      max-height: calc(100vh - 180px);
-    }
-
-    .car-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 16px;
-      border-bottom: 1px solid var(--border-color);
-      cursor: pointer;
-      transition: background 0.15s ease;
-      gap: 10px;
-    }
-
-    .car-item:last-child {
-      border-bottom: none;
-    }
-
-    .car-item:hover {
-      background: var(--background-color);
-    }
-
-    .car-item.active {
-      background: var(--background-color);
-      border-left: 3px solid var(--accent-color);
-      padding-left: 13px;
-    }
-
-    .car-item-info {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      min-width: 0;
-    }
-
-    .car-item-name {
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--text-color);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .car-item-type {
-      font-size: 0.75rem;
-      color: var(--text-color);
-      opacity: 0.5;
-    }
-
-    .car-item-price {
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--accent-color);
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-
-    .car-item .badges {
       margin-bottom: 0;
-      gap: 4px;
     }
 
-    .car-item .badge {
-      font-size: 0.65rem;
-      padding: 1px 6px;
+    .car-browser-scroll {
+      max-height: calc(100vh - 180px);
+      overflow-y: auto;
+      padding: 14px;
     }
 
-    .panel-left-empty {
-      padding: 40px 16px;
-      text-align: center;
-      color: var(--text-color);
-      opacity: 0.4;
-      font-size: 0.9rem;
+    /* ===== Reuse Cars Page Cards ===== */
+
+    .card-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
     }
 
-    /* ===== Right panel ===== */
+    .car-card {
+      cursor: pointer;
+      transition:
+        transform 0.15s ease,
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+    }
+
+    .car-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .car-card.selected {
+      border: 2px solid var(--accent-color);
+      box-shadow: 0 0 0 1px var(--accent-color);
+    }
+
+    /* ===== Right Panel ===== */
+
     .panel-right {
       min-width: 0;
     }
 
-    .calc-empty {
-      background-color: var(--foreground-color);
-      border-radius: 12px;
+    .calc-card {
+      background: var(--foreground-color);
       border: 1px solid var(--border-color);
-      padding: 60px 20px;
-      text-align: center;
-      color: var(--text-color);
-      opacity: 0.4;
-      font-size: 0.95rem;
+      border-radius: 14px;
+      padding: 24px;
     }
 
-    /* ===== Calculator Card ===== */
-    .calc-card {
-      background-color: var(--foreground-color);
-      padding: 20px;
-      border-radius: 12px;
-      text-align: left;
+    .calc-empty {
+      background: var(--foreground-color);
       border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 80px 24px;
+      text-align: center;
+      opacity: 0.5;
     }
 
     .calc-card h2 {
       margin-top: 0;
-      margin-bottom: 12px;
-      font-size: 1.5rem;
-      color: var(--text-color);
-      word-break: break-word;
+      margin-bottom: 10px;
+      font-size: 2rem;
     }
 
-    .base-price-tag {
-      font-size: 0.9rem;
-      color: var(--text-color);
+    .base-price {
       opacity: 0.6;
-      margin: 0 0 4px;
+      margin-bottom: 20px;
     }
 
     .divider {
       border: none;
       border-top: 1px solid var(--border-color);
-      margin: 20px 0;
+      margin: 24px 0;
     }
 
     /* ===== Upgrades ===== */
+
     .upgrades-section {
-      margin-top: 20px;
+      margin-top: 24px;
     }
 
     .upgrades-section h3 {
-      margin: 0 0 14px;
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      color: var(--text-color);
       opacity: 0.5;
-      font-weight: 600;
+      margin-bottom: 14px;
     }
 
     .upgrades-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
     }
 
     .upgrade-group {
@@ -210,158 +145,63 @@
     }
 
     .upgrade-group label {
-      font-size: 0.78rem;
-      color: var(--text-color);
-      opacity: 0.55;
-      font-weight: 600;
+      font-size: 0.75rem;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
+      opacity: 0.5;
+      font-weight: 600;
     }
 
     .upgrade-group select {
-      padding: 10px 14px;
-      min-height: 40px;
-      border-radius: 12px;
-      border: 1px solid var(--border-color);
       background: var(--background-color);
       color: var(--text-color);
-      font-size: 14px;
-      font-family: var(--font-family);
-      cursor: pointer;
-      transition: background 0.2s ease, border-color 0.2s ease;
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='rgb(160,160,160)' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 12px center;
-      padding-right: 32px;
-    }
-
-    .upgrade-group select:hover {
-      background-color: var(--foreground-color);
-      border-color: var(--accent-color);
-    }
-
-    /* ===== Summary Bar ===== */
-    .summary-bar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 20px;
+      border: 1px solid var(--border-color);
       border-radius: 12px;
+      padding: 12px 14px;
+      min-height: 44px;
+      font-family: var(--font-family);
+      font-size: 14px;
+    }
+
+    /* ===== Summary ===== */
+
+    .summary-bar {
+      margin-top: 28px;
+      padding: 18px;
+      border-radius: 14px;
       background: var(--background-color);
       border: 1px solid var(--border-color);
-      margin-top: 20px;
+
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      align-items: center;
+      justify-content: space-between;
     }
 
     .summary-item {
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 4px;
     }
 
     .summary-item span:first-child {
       font-size: 0.75rem;
-      color: var(--text-color);
       opacity: 0.5;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
-      font-weight: 600;
     }
 
     .summary-item span:last-child {
-      font-size: 1.2rem;
-      font-weight: 600;
-      color: var(--text-color);
+      font-size: 1.25rem;
+      font-weight: 700;
     }
 
     .summary-item.total span:last-child {
-      font-size: 1.5rem;
       color: var(--accent-color);
-    }
-
-    .summary-sep {
-      width: 1px;
-      height: 40px;
-      background: var(--border-color);
-    }
-
-    /* ===== Breakdown Button ===== */
-    .breakdown-btn {
-      padding: 10px 14px;
-      min-height: 40px;
-      border-radius: 12px;
-      border: 1px solid var(--border-color);
-      background: transparent;
-      color: var(--text-color);
-      font-size: 14px;
-      font-family: var(--font-family);
-      cursor: pointer;
-      transition: background 0.2s ease, border-color 0.2s ease;
-    }
-
-    .breakdown-btn:hover {
-      background: var(--foreground-color);
-      border-color: var(--accent-color);
-    }
-
-    .breakdown-btn.active {
-      background: var(--accent-color);
-      border-color: var(--accent-color);
-      color: #fff;
-    }
-
-    /* ===== Breakdown Card ===== */
-    .breakdown-card {
-      background-color: var(--background-color);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 20px;
-      margin-top: 12px;
-    }
-
-    .breakdown-card h3 {
-      margin: 0 0 14px;
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--text-color);
-      opacity: 0.5;
-      font-weight: 600;
-    }
-
-    .breakdown-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.95rem;
-      color: var(--text-color);
-    }
-
-    .breakdown-table td {
-      padding: 8px 0;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .breakdown-table td:last-child {
-      text-align: right;
-      opacity: 0.6;
-    }
-
-    .breakdown-table tr.total-row td {
-      border-bottom: none;
-      font-weight: 600;
-      font-size: 1rem;
-      padding-top: 12px;
-      opacity: 1;
-    }
-
-    .breakdown-table tr.total-row td:last-child {
-      color: var(--accent-color);
-      opacity: 1;
+      font-size: 1.6rem;
     }
 
     /* ===== Responsive ===== */
+
     @media (max-width: 900px) {
       .calc-layout {
         grid-template-columns: 1fr;
@@ -371,403 +211,319 @@
         position: static;
       }
 
-      .car-list-inner {
-        max-height: 300px;
-      }
-    }
-
-    @media (max-width: 600px) {
-      .upgrades-grid {
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      }
-
-      .summary-sep {
-        display: none;
+      .car-browser-scroll {
+        max-height: 400px;
       }
     }
   </style>
 </head>
+
 <body>
+
   <div id="navbar"></div>
 
-  <main class="sect" aria-label="Upgrade cost calculator">
+  <main class="sect">
+
     <div class="calc-layout">
 
-      <!-- ===== Left: Car Picker ===== -->
+      <!-- LEFT -->
+
       <div class="panel-left">
-        <div class="panel-left-header">
-          <input type="text" placeholder="Search cars..." id="carSearch" oninput="filterCars()">
+
+        <div class="filter-bar">
+          <input
+            type="text"
+            placeholder="Search cars..."
+            class="filter-input"
+            id="carSearch"
+            oninput="filterCars()"
+          >
         </div>
-        <div class="car-list-inner" id="carListInner">
-          <p class="panel-left-empty">Loading cars...</p>
+
+        <div class="car-browser-scroll">
+          <div class="card-container" id="card-container"></div>
         </div>
+
       </div>
 
-      <!-- ===== Right: Calculator ===== -->
+      <!-- RIGHT -->
+
       <div class="panel-right" id="panelRight">
-        <div class="calc-empty">Select a car to calculate upgrade costs.</div>
+
+        <div class="calc-empty">
+          Select a car to calculate upgrade costs.
+        </div>
+
       </div>
 
     </div>
+
   </main>
 
   <div id="footer"></div>
 
   <script src="../components/elementloader.js"></script>
+
   <script>
-    // ===== Data =====
+
     const UPGRADES = {
-      Engine: {
-        key: 'engine', label: 'Engine',
-        options: [
-          { name: 'Stock', pct: 0 },
-          { name: 'Street', pct: 0.10 },
-          { name: 'Sport', pct: 0.15 },
-          { name: 'Race', pct: 0.20 }
-        ]
-      },
-      Gearbox: {
-        key: 'gearbox', label: 'Gearbox',
-        options: [
-          { name: 'Stock', pct: 0 },
-          { name: 'Street', pct: 0.05 },
-          { name: 'Sport', pct: 0.07 },
-          { name: 'Race', pct: 0.10 }
-        ]
-      },
-      Turbo: {
-        key: 'turbo', label: 'Turbo',
-        options: [
-          { name: 'Stock', pct: 0 },
-          { name: 'Turbo', pct: 0.05 },
-          { name: 'Twin Turbo', pct: 0.10 }
-        ]
-      },
-      Brakes: {
-        key: 'brakes', label: 'Brakes',
-        options: [
-          { name: 'Stock', pct: 0 },
-          { name: 'Street', pct: 0.05 },
-          { name: 'Sport', pct: 0.07 },
-          { name: 'Race', pct: 0.10 }
-        ]
-      },
-      Drive: {
-        key: 'drive', label: 'Drive',
-        options: [
-          { name: 'Stock (no change)', flat: 0 },
-          { name: 'FWD', flat: 10000 },
-          { name: 'RWD', flat: 15000 },
-          { name: 'AWD', flat: 25000 }
-        ]
-      },
-      Tires: {
-        key: 'tires', label: 'Tires',
-        options: [
-          { name: 'Stock (no change)', flat: 0 },
-          { name: 'Street', flat: 5000 },
-          { name: 'Drift', flat: 10000 },
-          { name: 'Race', flat: 15000 }
-        ]
-      }
+      Engine: [
+        ['Stock', 0],
+        ['Street', 0.10],
+        ['Sport', 0.15],
+        ['Race', 0.20]
+      ],
+      Gearbox: [
+        ['Stock', 0],
+        ['Street', 0.05],
+        ['Sport', 0.07],
+        ['Race', 0.10]
+      ],
+      Turbo: [
+        ['Stock', 0],
+        ['Turbo', 0.05],
+        ['Twin Turbo', 0.10]
+      ],
+      Brakes: [
+        ['Stock', 0],
+        ['Street', 0.05],
+        ['Sport', 0.07],
+        ['Race', 0.10]
+      ]
     };
 
-    const SUSPENSION = {
-      'Suspension Height': {
-        key: 'sheight', label: 'Suspension Height',
-        options: [
-          { name: 'None', flat: 0 },
-          { name: 'Low', flat: 10000 },
-          { name: 'Stock', flat: 10000 },
-          { name: 'High', flat: 10000 }
-        ]
-      },
-      'Suspension Camber': {
-        key: 'camber', label: 'Camber',
-        options: [
-          { name: 'None', flat: 0 },
-          { name: 'Tilt 2°', flat: 10000 },
-          { name: 'Tilt 4°', flat: 10000 },
-          { name: 'Tilt 6°', flat: 10000 },
-          { name: 'Tilt 8°', flat: 10000 },
-          { name: 'Tilt 10°', flat: 10000 }
-        ]
-      },
-      'Front Offset': {
-        key: 'foffset', label: 'Front Offset',
-        options: [
-          { name: 'None', flat: 0 },
-          { name: 'Offset [-0.1]', flat: 10000 },
-          { name: 'Offset [-0.05]', flat: 10000 },
-          { name: 'Offset [0.05]', flat: 10000 },
-          { name: 'Offset [0.1]', flat: 10000 },
-          { name: 'Offset [0.15]', flat: 10000 },
-          { name: 'Offset [0.2]', flat: 10000 },
-          { name: 'Offset [0.25]', flat: 10000 },
-          { name: 'Offset [0.3]', flat: 10000 },
-          { name: 'Offset [0.35]', flat: 10000 },
-          { name: 'Offset [0.4]', flat: 10000 }
-        ]
-      },
-      'Rear Offset': {
-        key: 'roffset', label: 'Rear Offset',
-        options: [
-          { name: 'None', flat: 0 },
-          { name: 'Offset [-0.1]', flat: 10000 },
-          { name: 'Offset [-0.05]', flat: 10000 },
-          { name: 'Offset [0.05]', flat: 10000 },
-          { name: 'Offset [0.1]', flat: 10000 },
-          { name: 'Offset [0.15]', flat: 10000 },
-          { name: 'Offset [0.2]', flat: 10000 },
-          { name: 'Offset [0.25]', flat: 10000 },
-          { name: 'Offset [0.3]', flat: 10000 },
-          { name: 'Offset [0.35]', flat: 10000 },
-          { name: 'Offset [0.4]', flat: 10000 }
-        ]
-      }
-    };
-
-    // ===== State =====
     let allCars = [];
     let filteredCars = [];
     let selectedCar = null;
-    let breakdownVisible = false;
 
-    // ===== Helpers =====
     function fmt(n) {
       return '$' + Math.round(n).toLocaleString();
     }
 
     function normalizeCar(car) {
-      if (!car || typeof car !== 'object' || Array.isArray(car)) return null;
       return {
-        CarName: car.CarName || 'Unknown Car',
+        CarName: car.CarName || 'Unknown',
+        PRICE: car.PRICE || 0,
         TYPE: car.TYPE || 'Unknown',
         NEWCAR: car.NEWCAR || false,
-        PRICE: car.PRICE || 0
+        IMAGE: car.IMAGE || ''
       };
     }
 
-    // ===== Render Car List =====
-    function renderCarList() {
-      const inner = document.getElementById('carListInner');
+    function renderCars() {
+
+      const container = document.getElementById('card-container');
 
       if (!filteredCars.length) {
-        inner.innerHTML = '<p class="panel-left-empty">No cars found.</p>';
+        container.innerHTML = `<p>No cars found.</p>`;
         return;
       }
 
-      inner.innerHTML = filteredCars.map(c => {
-        const isActive = selectedCar && selectedCar.CarName === c.CarName;
-        const badges = [
-          c.NEWCAR ? '<span class="badge new">NEW</span>' : '',
-          c.TYPE === 'Limited' ? '<span class="badge limited">Limited</span>' : ''
-        ].filter(Boolean).join('');
+      container.innerHTML = filteredCars.map(car => {
+
+        const selected =
+          selectedCar &&
+          selectedCar.CarName === car.CarName;
 
         return `
-          <div class="car-item${isActive ? ' active' : ''}" onclick="selectCar('${c.CarName.replace(/'/g, "\\'")}')">
-            <div class="car-item-info">
-              <span class="car-item-name">${c.CarName}</span>
-              <div style="display:flex;align-items:center;gap:6px;">
-                <span class="car-item-type">${c.TYPE}</span>
-                ${badges ? `<div class="badges">${badges}</div>` : ''}
+          <div
+            class="car-card ${selected ? 'selected' : ''}"
+            onclick="selectCar('${car.CarName.replace(/'/g, "\\'")}')"
+          >
+
+            <img
+              src="${car.IMAGE || 'https://placehold.co/600x300'}"
+              alt="${car.CarName}"
+              class="card-image"
+            >
+
+            <div class="card-content">
+
+              <div class="badges">
+                ${car.NEWCAR ? `<span class="badge new">NEW</span>` : ''}
+                ${car.TYPE === 'Limited'
+                  ? `<span class="badge limited">LIMITED</span>`
+                  : ''}
               </div>
+
+              <h3>${car.CarName}</h3>
+
+              <p>${fmt(car.PRICE)}</p>
+
             </div>
-            <span class="car-item-price">${fmt(c.PRICE)}</span>
-          </div>`;
+
+          </div>
+        `;
+
       }).join('');
     }
 
-    // ===== Filter =====
     function filterCars() {
-      const q = document.getElementById('carSearch').value.toLowerCase();
-      filteredCars = allCars.filter(c => c.CarName.toLowerCase().includes(q));
-      renderCarList();
+
+      const q =
+        document
+          .getElementById('carSearch')
+          .value
+          .toLowerCase();
+
+      filteredCars = allCars.filter(car =>
+        car.CarName.toLowerCase().includes(q)
+      );
+
+      renderCars();
     }
 
-    // ===== Select Car =====
     function selectCar(name) {
-      selectedCar = allCars.find(c => c.CarName === name) || null;
-      breakdownVisible = false;
-      renderCarList();
-      renderCalc();
+
+      selectedCar =
+        allCars.find(c => c.CarName === name);
+
+      renderCars();
+      renderCalculator();
     }
 
-    // ===== Render Calculator =====
-    function renderCalc() {
-      const right = document.getElementById('panelRight');
+    function renderCalculator() {
+
+      const right =
+        document.getElementById('panelRight');
 
       if (!selectedCar) {
-        right.innerHTML = '<div class="calc-empty">Select a car to calculate upgrade costs.</div>';
+        right.innerHTML = `
+          <div class="calc-empty">
+            Select a car to calculate upgrade costs.
+          </div>
+        `;
         return;
       }
 
-      const badges = [
-        selectedCar.NEWCAR ? '<span class="badge new">NEW</span>' : '',
-        selectedCar.TYPE === 'Limited' ? '<span class="badge limited">Limited</span>' : ''
-      ].join('');
+      let upgradesHTML = '';
 
-      let perfHTML = '';
-      Object.values(UPGRADES).forEach(group => {
-        let opts = '';
-        group.options.forEach((opt, i) => {
-          let costStr = '';
-          if (opt.flat !== undefined) {
-            costStr = opt.flat > 0 ? ' (+' + fmt(opt.flat) + ')' : '';
-          } else {
-            const cost = Math.round(selectedCar.PRICE * (opt.pct || 0));
-            costStr = cost > 0 ? ' (+' + fmt(cost) + ')' : '';
-          }
-          opts += `<option value="${i}">${opt.name}${costStr}</option>`;
-        });
-        perfHTML += `
-          <div class="upgrade-group">
-            <label>${group.label}</label>
-            <select data-key="${group.key}" onchange="recalc()">${opts}</select>
-          </div>`;
-      });
+      Object.entries(UPGRADES).forEach(([group, options]) => {
 
-      let suspHTML = '';
-      Object.values(SUSPENSION).forEach(group => {
-        let opts = '';
-        group.options.forEach((opt, i) => {
-          const costStr = opt.flat > 0 ? ' (+' + fmt(opt.flat) + ')' : '';
-          opts += `<option value="${i}">${opt.name}${costStr}</option>`;
-        });
-        suspHTML += `
+        upgradesHTML += `
           <div class="upgrade-group">
-            <label>${group.label}</label>
-            <select data-key="${group.key}" onchange="recalc()">${opts}</select>
-          </div>`;
+
+            <label>${group}</label>
+
+            <select onchange="recalc()">
+
+              ${options.map((opt, i) => {
+
+                const cost =
+                  Math.round(selectedCar.PRICE * opt[1]);
+
+                return `
+                  <option value="${cost}">
+                    ${opt[0]}
+                    ${cost > 0 ? `(+${fmt(cost)})` : ''}
+                  </option>
+                `;
+
+              }).join('')}
+
+            </select>
+
+          </div>
+        `;
       });
 
       right.innerHTML = `
         <div class="calc-card">
+
           <h2>${selectedCar.CarName}</h2>
-          ${badges ? `<div class="badges">${badges}</div>` : ''}
-          <p class="base-price-tag">Base price: <strong>${fmt(selectedCar.PRICE)}</strong></p>
+
+          <div class="base-price">
+            Base Price:
+            <strong>${fmt(selectedCar.PRICE)}</strong>
+          </div>
 
           <hr class="divider">
 
           <div class="upgrades-section">
-            <h3>Performance Upgrades</h3>
-            <div class="upgrades-grid">${perfHTML}</div>
-          </div>
 
-          <div class="upgrades-section">
-            <h3>Suspension Upgrades</h3>
-            <div class="upgrades-grid">${suspHTML}</div>
+            <h3>Performance Upgrades</h3>
+
+            <div class="upgrades-grid">
+              ${upgradesHTML}
+            </div>
+
           </div>
 
           <div class="summary-bar">
+
             <div class="summary-item">
-              <span>Base Price</span>
+              <span>Base</span>
               <span id="sumBase">${fmt(selectedCar.PRICE)}</span>
             </div>
-            <div class="summary-sep"></div>
+
             <div class="summary-item">
               <span>Upgrades</span>
               <span id="sumUpgrades">$0</span>
             </div>
-            <div class="summary-sep"></div>
+
             <div class="summary-item total">
               <span>Total</span>
               <span id="sumTotal">${fmt(selectedCar.PRICE)}</span>
             </div>
-            <button class="breakdown-btn" id="breakdownBtn" onclick="toggleBreakdown()">Breakdown</button>
+
           </div>
 
-          <div class="breakdown-card" id="breakdownCard" style="display:none;">
-            <h3>Cost Breakdown</h3>
-            <table class="breakdown-table" id="breakdownTable"></table>
-          </div>
-        </div>`;
+        </div>
+      `;
 
       recalc();
     }
 
-    // ===== Recalc =====
     function recalc() {
+
       if (!selectedCar) return;
 
-      const price = selectedCar.PRICE;
-      let upgradeTotal = 0;
-      const lines = [];
+      let upgrades = 0;
 
-      const allGroups = { ...UPGRADES, ...SUSPENSION };
-
-      document.querySelectorAll('[data-key]').forEach(sel => {
-        const key = sel.dataset.key;
-        const group = Object.values(allGroups).find(g => g.key === key);
-        if (!group) return;
-
-        const idx = parseInt(sel.value);
-        const opt = group.options[idx];
-        if (!opt) return;
-
-        let cost = 0;
-        if (opt.flat !== undefined) {
-          cost = opt.flat;
-        } else {
-          cost = Math.round(price * (opt.pct || 0));
-        }
-
-        if (cost > 0) {
-          lines.push({ label: group.label + ' — ' + opt.name, cost });
-          upgradeTotal += cost;
-        }
-      });
-
-      document.getElementById('sumBase').textContent = fmt(price);
-      document.getElementById('sumUpgrades').textContent = fmt(upgradeTotal);
-      document.getElementById('sumTotal').textContent = fmt(price + upgradeTotal);
-
-      const table = document.getElementById('breakdownTable');
-      if (table) {
-        table.innerHTML = '';
-        lines.forEach(l => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `<td>${l.label}</td><td>${fmt(l.cost)}</td>`;
-          table.appendChild(tr);
+      document
+        .querySelectorAll('select')
+        .forEach(select => {
+          upgrades += Number(select.value);
         });
-        const totRow = document.createElement('tr');
-        totRow.className = 'total-row';
-        totRow.innerHTML = `<td>Total (car + upgrades)</td><td>${fmt(price + upgradeTotal)}</td>`;
-        table.appendChild(totRow);
-      }
+
+      document.getElementById('sumUpgrades')
+        .textContent = fmt(upgrades);
+
+      document.getElementById('sumTotal')
+        .textContent =
+          fmt(selectedCar.PRICE + upgrades);
     }
 
-    // ===== Toggle Breakdown =====
-    function toggleBreakdown() {
-      breakdownVisible = !breakdownVisible;
-      const card = document.getElementById('breakdownCard');
-      const btn = document.getElementById('breakdownBtn');
-      if (card) card.style.display = breakdownVisible ? 'block' : 'none';
-      if (btn) btn.classList.toggle('active', breakdownVisible);
-    }
-
-    // ===== Fetch Data =====
     fetch('https://carzonedb.github.io/assets/infojsons/cars.json')
-      .then(res => {
-        if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
-        return res.json();
-      })
-      .then(api => {
-        const rawCars = api.data || {};
 
-        allCars = Object.values(rawCars)
-          .map(normalizeCar)
-          .filter(Boolean)
-          .sort((a, b) => a.CarName.localeCompare(b.CarName));
+      .then(r => r.json())
+
+      .then(api => {
+
+        allCars =
+          Object
+            .values(api.data || {})
+            .map(normalizeCar)
+            .sort((a, b) =>
+              a.CarName.localeCompare(b.CarName)
+            );
 
         filteredCars = allCars;
-        renderCarList();
+
+        renderCars();
+
       })
+
       .catch(err => {
-        console.error('Failed to load cars:', err);
-        document.getElementById('carListInner').innerHTML =
-          '<p class="panel-left-empty" style="color:#FF3B3B;">Failed to load car data.</p>';
+
+        console.error(err);
+
+        document.getElementById('card-container')
+          .innerHTML =
+            `<p>Failed to load cars.</p>`;
       });
+
   </script>
+
 </body>
 </html>
