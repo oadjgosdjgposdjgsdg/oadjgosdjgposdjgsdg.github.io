@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>CarZoneDB - Upgrade Calculator</title>
+  <title>CarZoneDB - Calculator</title>
   <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/CarZoneDB/CarZoneDB.github.io/refs/heads/main/assets/favicon.png">
   <meta
     name="description"
@@ -12,9 +12,380 @@
   />
 
   <link rel="stylesheet" href="../components/base.css">
-  <link rel="stylesheet" href="../cars/style.css">
   <link rel="stylesheet" href="style.css">
 
+  <style>
+    /* ===== Two-panel layout ===== */
+    .calc-layout {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* ===== Left panel ===== */
+    .panel-left {
+      background-color: var(--foreground-color);
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      overflow: hidden;
+      position: sticky;
+      top: 20px;
+    }
+
+    .panel-left-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .panel-left-header input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px 14px;
+      min-height: 40px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      background: var(--background-color);
+      color: var(--text-color);
+      font-size: 14px;
+      font-family: var(--font-family);
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .panel-left-header input:focus {
+      border-color: var(--accent-color);
+    }
+
+    /* ===== Car list inside left panel ===== */
+    .car-list-inner {
+      overflow-y: auto;
+      max-height: calc(100vh - 180px);
+    }
+
+    .car-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-color);
+      cursor: pointer;
+      transition: background 0.15s ease;
+      gap: 10px;
+    }
+
+    .car-item:last-child {
+      border-bottom: none;
+    }
+
+    .car-item:hover {
+      background: var(--background-color);
+    }
+
+    .car-item.active {
+      background: var(--background-color);
+      border-left: 3px solid var(--accent-color);
+      padding-left: 13px;
+    }
+
+    .car-item-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .car-item-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-color);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .car-item-type {
+      font-size: 0.75rem;
+      color: var(--text-color);
+      opacity: 0.5;
+    }
+
+    .car-item-price {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent-color);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .car-item .badges {
+      margin-bottom: 0;
+      gap: 4px;
+    }
+
+    .car-item .badge {
+      font-size: 0.65rem;
+      padding: 1px 6px;
+    }
+
+    .panel-left-empty {
+      padding: 40px 16px;
+      text-align: center;
+      color: var(--text-color);
+      opacity: 0.4;
+      font-size: 0.9rem;
+    }
+
+    /* ===== Right panel ===== */
+    .panel-right {
+      min-width: 0;
+    }
+
+    .calc-empty {
+      background-color: var(--foreground-color);
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      padding: 60px 20px;
+      text-align: center;
+      color: var(--text-color);
+      opacity: 0.4;
+      font-size: 0.95rem;
+    }
+
+    /* ===== Calculator Card ===== */
+    .calc-card {
+      background-color: var(--foreground-color);
+      padding: 20px;
+      border-radius: 12px;
+      text-align: left;
+      border: 1px solid var(--border-color);
+    }
+
+    .calc-card h2 {
+      margin-top: 0;
+      margin-bottom: 12px;
+      font-size: 1.5rem;
+      color: var(--text-color);
+      word-break: break-word;
+    }
+
+    .base-price-tag {
+      font-size: 0.9rem;
+      color: var(--text-color);
+      opacity: 0.6;
+      margin: 0 0 4px;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border-color);
+      margin: 20px 0;
+    }
+
+    /* ===== Upgrades ===== */
+    .upgrades-section {
+      margin-top: 20px;
+    }
+
+    .upgrades-section h3 {
+      margin: 0 0 14px;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-color);
+      opacity: 0.5;
+      font-weight: 600;
+    }
+
+    .upgrades-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .upgrade-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .upgrade-group label {
+      font-size: 0.78rem;
+      color: var(--text-color);
+      opacity: 0.55;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .upgrade-group select {
+      padding: 10px 14px;
+      min-height: 40px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      background: var(--background-color);
+      color: var(--text-color);
+      font-size: 14px;
+      font-family: var(--font-family);
+      cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='rgb(160,160,160)' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+    }
+
+    .upgrade-group select:hover {
+      background-color: var(--foreground-color);
+      border-color: var(--accent-color);
+    }
+
+    /* ===== Summary Bar ===== */
+    .summary-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-radius: 12px;
+      background: var(--background-color);
+      border: 1px solid var(--border-color);
+      margin-top: 20px;
+    }
+
+    .summary-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .summary-item span:first-child {
+      font-size: 0.75rem;
+      color: var(--text-color);
+      opacity: 0.5;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-weight: 600;
+    }
+
+    .summary-item span:last-child {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .summary-item.total span:last-child {
+      font-size: 1.5rem;
+      color: var(--accent-color);
+    }
+
+    .summary-sep {
+      width: 1px;
+      height: 40px;
+      background: var(--border-color);
+    }
+
+    /* ===== Breakdown Button ===== */
+    .breakdown-btn {
+      padding: 10px 14px;
+      min-height: 40px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      background: transparent;
+      color: var(--text-color);
+      font-size: 14px;
+      font-family: var(--font-family);
+      cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .breakdown-btn:hover {
+      background: var(--foreground-color);
+      border-color: var(--accent-color);
+    }
+
+    .breakdown-btn.active {
+      background: var(--accent-color);
+      border-color: var(--accent-color);
+      color: #fff;
+    }
+
+    /* ===== Breakdown Card ===== */
+    .breakdown-card {
+      background-color: var(--background-color);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 12px;
+    }
+
+    .breakdown-card h3 {
+      margin: 0 0 14px;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-color);
+      opacity: 0.5;
+      font-weight: 600;
+    }
+
+    .breakdown-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+      color: var(--text-color);
+    }
+
+    .breakdown-table td {
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .breakdown-table td:last-child {
+      text-align: right;
+      opacity: 0.6;
+    }
+
+    .breakdown-table tr.total-row td {
+      border-bottom: none;
+      font-weight: 600;
+      font-size: 1rem;
+      padding-top: 12px;
+      opacity: 1;
+    }
+
+    .breakdown-table tr.total-row td:last-child {
+      color: var(--accent-color);
+      opacity: 1;
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 900px) {
+      .calc-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .panel-left {
+        position: static;
+      }
+
+      .car-list-inner {
+        max-height: 300px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .upgrades-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      }
+
+      .summary-sep {
+        display: none;
+      }
+    }
+  </style>
 </head>
 <body>
   <div id="navbar"></div>
@@ -23,23 +394,14 @@
     <div class="calc-layout">
 
       <!-- ===== Left: Car Picker ===== -->
-<div class="panel-left">
-
-  <div class="filter-bar" style="margin-bottom:0;padding:14px;border-bottom:1px solid var(--border-color);">
-    <input
-      type="text"
-      placeholder="Search cars..."
-      class="filter-input"
-      id="carSearch"
-      oninput="filterCars()"
-    >
-  </div>
-
-  <div class="car-browser-scroll">
-    <div class="card-container" id="card-container"></div>
-  </div>
-
-</div>
+      <div class="panel-left">
+        <div class="panel-left-header">
+          <input type="text" placeholder="Search cars..." id="carSearch" oninput="filterCars()">
+        </div>
+        <div class="car-list-inner" id="carListInner">
+          <p class="panel-left-empty">Loading cars...</p>
+        </div>
+      </div>
 
       <!-- ===== Right: Calculator ===== -->
       <div class="panel-right" id="panelRight">
@@ -187,59 +549,33 @@
 
     // ===== Render Car List =====
     function renderCarList() {
+      const inner = document.getElementById('carListInner');
 
-  const container =
-    document.getElementById('card-container');
+      if (!filteredCars.length) {
+        inner.innerHTML = '<p class="panel-left-empty">No cars found.</p>';
+        return;
+      }
 
-  if (!filteredCars.length) {
+      inner.innerHTML = filteredCars.map(c => {
+        const isActive = selectedCar && selectedCar.CarName === c.CarName;
+        const badges = [
+          c.NEWCAR ? '<span class="badge new">NEW</span>' : '',
+          c.TYPE === 'Limited' ? '<span class="badge limited">Limited</span>' : ''
+        ].filter(Boolean).join('');
 
-    container.innerHTML =
-      '<p class="panel-left-empty">No cars found.</p>';
-
-    return;
-  }
-
-  container.innerHTML = filteredCars.map(car => {
-
-    const selected =
-      selectedCar &&
-      selectedCar.CarName === car.CarName;
-
-    const badges = [
-      car.NEWCAR
-        ? '<span class="badge new">NEW</span>'
-        : '',
-
-      car.TYPE === 'Limited'
-        ? '<span class="badge limited">LIMITED</span>'
-        : ''
-    ].join('');
-
-    return `
-      <div
-        class="car-card ${selected ? 'selected' : ''}"
-        onclick="selectCar('${car.CarName.replace(/'/g, "\\'")}')"
-      >
-
-        <div class="card-content">
-
-          <div class="badges">
-            ${badges}
-          </div>
-
-          <h3>${car.CarName}</h3>
-
-          <p>${car.TYPE}</p>
-
-          <strong>${fmt(car.PRICE)}</strong>
-
-        </div>
-
-      </div>
-    `;
-
-  }).join('');
-}
+        return `
+          <div class="car-item${isActive ? ' active' : ''}" onclick="selectCar('${c.CarName.replace(/'/g, "\\'")}')">
+            <div class="car-item-info">
+              <span class="car-item-name">${c.CarName}</span>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span class="car-item-type">${c.TYPE}</span>
+                ${badges ? `<div class="badges">${badges}</div>` : ''}
+              </div>
+            </div>
+            <span class="car-item-price">${fmt(c.PRICE)}</span>
+          </div>`;
+      }).join('');
+    }
 
     // ===== Filter =====
     function filterCars() {
