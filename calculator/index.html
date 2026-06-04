@@ -1,529 +1,435 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>CarZoneDB - Upgrade Calculator</title>
-
-  <link rel="icon" type="image/x-icon"
-    href="https://raw.githubusercontent.com/CarZoneDB/CarZoneDB.github.io/refs/heads/main/assets/favicon.png">
+  <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/CarZoneDB/CarZoneDB.github.io/refs/heads/main/assets/favicon.png">
+  <meta
+    name="description"
+    content="Calculate the total cost of upgrading your car in Car Zone. Select a car and configure your upgrades to see the full price breakdown."
+  />
 
   <link rel="stylesheet" href="../components/base.css">
   <link rel="stylesheet" href="../cars/style.css">
 
-  <style>
-    /* ===== Layout ===== */
-
-    .sect {
-      width: 100%;
-      display: flex;
-      justify-content: center;
-    }
-
-    .calc-layout {
-      display: grid;
-      grid-template-columns: 380px minmax(0, 1fr);
-      gap: 24px;
-      width: 100%;
-      max-width: 1600px;
-      margin: 0 auto;
-      align-items: start;
-    }
-
-    /* ===== Left Panel ===== */
-
-    .panel-left {
-      background: var(--foreground-color);
-      border: 1px solid var(--border-color);
-      border-radius: 14px;
-      overflow: hidden;
-      position: sticky;
-      top: 20px;
-    }
-
-    .panel-left .filter-bar {
-      padding: 14px;
-      border-bottom: 1px solid var(--border-color);
-      margin-bottom: 0;
-    }
-
-    .car-browser-scroll {
-      max-height: calc(100vh - 180px);
-      overflow-y: auto;
-      padding: 14px;
-    }
-
-    /* ===== Reuse Cars Page Cards ===== */
-
-    .card-container {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 14px;
-    }
-
-    .car-card {
-      cursor: pointer;
-      transition:
-        transform 0.15s ease,
-        border-color 0.15s ease,
-        box-shadow 0.15s ease;
-    }
-
-    .car-card:hover {
-      transform: translateY(-2px);
-    }
-
-    .car-card.selected {
-      border: 2px solid var(--accent-color);
-      box-shadow: 0 0 0 1px var(--accent-color);
-    }
-
-    /* ===== Right Panel ===== */
-
-    .panel-right {
-      min-width: 0;
-    }
-
-    .calc-card {
-      background: var(--foreground-color);
-      border: 1px solid var(--border-color);
-      border-radius: 14px;
-      padding: 24px;
-    }
-
-    .calc-empty {
-      background: var(--foreground-color);
-      border: 1px solid var(--border-color);
-      border-radius: 14px;
-      padding: 80px 24px;
-      text-align: center;
-      opacity: 0.5;
-    }
-
-    .calc-card h2 {
-      margin-top: 0;
-      margin-bottom: 10px;
-      font-size: 2rem;
-    }
-
-    .base-price {
-      opacity: 0.6;
-      margin-bottom: 20px;
-    }
-
-    .divider {
-      border: none;
-      border-top: 1px solid var(--border-color);
-      margin: 24px 0;
-    }
-
-    /* ===== Upgrades ===== */
-
-    .upgrades-section {
-      margin-top: 24px;
-    }
-
-    .upgrades-section h3 {
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      opacity: 0.5;
-      margin-bottom: 14px;
-    }
-
-    .upgrades-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 14px;
-    }
-
-    .upgrade-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .upgrade-group label {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      opacity: 0.5;
-      font-weight: 600;
-    }
-
-    .upgrade-group select {
-      background: var(--background-color);
-      color: var(--text-color);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 12px 14px;
-      min-height: 44px;
-      font-family: var(--font-family);
-      font-size: 14px;
-    }
-
-    /* ===== Summary ===== */
-
-    .summary-bar {
-      margin-top: 28px;
-      padding: 18px;
-      border-radius: 14px;
-      background: var(--background-color);
-      border: 1px solid var(--border-color);
-
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .summary-item {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .summary-item span:first-child {
-      font-size: 0.75rem;
-      opacity: 0.5;
-      text-transform: uppercase;
-    }
-
-    .summary-item span:last-child {
-      font-size: 1.25rem;
-      font-weight: 700;
-    }
-
-    .summary-item.total span:last-child {
-      color: var(--accent-color);
-      font-size: 1.6rem;
-    }
-
-    /* ===== Responsive ===== */
-
-    @media (max-width: 900px) {
-      .calc-layout {
-        grid-template-columns: 1fr;
-      }
-
-      .panel-left {
-        position: static;
-      }
-
-      .car-browser-scroll {
-        max-height: 400px;
-      }
-    }
-  </style>
 </head>
-
 <body>
-
   <div id="navbar"></div>
 
-  <main class="sect">
-
+  <main class="sect" aria-label="Upgrade cost calculator">
     <div class="calc-layout">
 
-      <!-- LEFT -->
+      <!-- ===== Left: Car Picker ===== -->
+<div class="panel-left">
 
-      <div class="panel-left">
+  <div class="filter-bar" style="margin-bottom:0;padding:14px;border-bottom:1px solid var(--border-color);">
+    <input
+      type="text"
+      placeholder="Search cars..."
+      class="filter-input"
+      id="carSearch"
+      oninput="filterCars()"
+    >
+  </div>
 
-        <div class="filter-bar">
-          <input
-            type="text"
-            placeholder="Search cars..."
-            class="filter-input"
-            id="carSearch"
-            oninput="filterCars()"
-          >
-        </div>
+  <div class="car-browser-scroll">
+    <div class="card-container" id="card-container"></div>
+  </div>
 
-        <div class="car-browser-scroll">
-          <div class="card-container" id="card-container"></div>
-        </div>
+</div>
 
-      </div>
-
-      <!-- RIGHT -->
-
+      <!-- ===== Right: Calculator ===== -->
       <div class="panel-right" id="panelRight">
-
-        <div class="calc-empty">
-          Select a car to calculate upgrade costs.
-        </div>
-
+        <div class="calc-empty">Select a car to calculate upgrade costs.</div>
       </div>
 
     </div>
-
   </main>
 
   <div id="footer"></div>
 
   <script src="../components/elementloader.js"></script>
-
   <script>
-
+    // ===== Data =====
     const UPGRADES = {
-      Engine: [
-        ['Stock', 0],
-        ['Street', 0.10],
-        ['Sport', 0.15],
-        ['Race', 0.20]
-      ],
-      Gearbox: [
-        ['Stock', 0],
-        ['Street', 0.05],
-        ['Sport', 0.07],
-        ['Race', 0.10]
-      ],
-      Turbo: [
-        ['Stock', 0],
-        ['Turbo', 0.05],
-        ['Twin Turbo', 0.10]
-      ],
-      Brakes: [
-        ['Stock', 0],
-        ['Street', 0.05],
-        ['Sport', 0.07],
-        ['Race', 0.10]
-      ]
+      Engine: {
+        key: 'engine', label: 'Engine',
+        options: [
+          { name: 'Stock', pct: 0 },
+          { name: 'Street', pct: 0.10 },
+          { name: 'Sport', pct: 0.15 },
+          { name: 'Race', pct: 0.20 }
+        ]
+      },
+      Gearbox: {
+        key: 'gearbox', label: 'Gearbox',
+        options: [
+          { name: 'Stock', pct: 0 },
+          { name: 'Street', pct: 0.05 },
+          { name: 'Sport', pct: 0.07 },
+          { name: 'Race', pct: 0.10 }
+        ]
+      },
+      Turbo: {
+        key: 'turbo', label: 'Turbo',
+        options: [
+          { name: 'Stock', pct: 0 },
+          { name: 'Turbo', pct: 0.05 },
+          { name: 'Twin Turbo', pct: 0.10 }
+        ]
+      },
+      Brakes: {
+        key: 'brakes', label: 'Brakes',
+        options: [
+          { name: 'Stock', pct: 0 },
+          { name: 'Street', pct: 0.05 },
+          { name: 'Sport', pct: 0.07 },
+          { name: 'Race', pct: 0.10 }
+        ]
+      },
+      Drive: {
+        key: 'drive', label: 'Drive',
+        options: [
+          { name: 'Stock (no change)', flat: 0 },
+          { name: 'FWD', flat: 10000 },
+          { name: 'RWD', flat: 15000 },
+          { name: 'AWD', flat: 25000 }
+        ]
+      },
+      Tires: {
+        key: 'tires', label: 'Tires',
+        options: [
+          { name: 'Street', flat: 5000 },
+          { name: 'Drift', flat: 10000 },
+          { name: 'Race', flat: 15000 }
+        ]
+      }
     };
 
+    const SUSPENSION = {
+      'Suspension Height': {
+        key: 'sheight', label: 'Suspension Height',
+        options: [
+          { name: 'None', flat: 0 },
+          { name: 'Low', flat: 10000 },
+          { name: 'Stock', flat: 10000 },
+          { name: 'High', flat: 10000 }
+        ]
+      },
+      'Suspension Camber': {
+        key: 'camber', label: 'Camber',
+        options: [
+          { name: 'None', flat: 0 },
+          { name: 'Tilt 2°', flat: 10000 },
+          { name: 'Tilt 4°', flat: 10000 },
+          { name: 'Tilt 6°', flat: 10000 },
+          { name: 'Tilt 8°', flat: 10000 },
+          { name: 'Tilt 10°', flat: 10000 }
+        ]
+      },
+      'Front Offset': {
+        key: 'foffset', label: 'Front Offset',
+        options: [
+          { name: 'None', flat: 0 },
+          { name: 'Offset [-0.1]', flat: 10000 },
+          { name: 'Offset [-0.05]', flat: 10000 },
+          { name: 'Offset [0.05]', flat: 10000 },
+          { name: 'Offset [0.1]', flat: 10000 },
+          { name: 'Offset [0.15]', flat: 10000 },
+          { name: 'Offset [0.2]', flat: 10000 },
+          { name: 'Offset [0.25]', flat: 10000 },
+          { name: 'Offset [0.3]', flat: 10000 },
+          { name: 'Offset [0.35]', flat: 10000 },
+          { name: 'Offset [0.4]', flat: 10000 }
+        ]
+      },
+      'Rear Offset': {
+        key: 'roffset', label: 'Rear Offset',
+        options: [
+          { name: 'None', flat: 0 },
+          { name: 'Offset [-0.1]', flat: 10000 },
+          { name: 'Offset [-0.05]', flat: 10000 },
+          { name: 'Offset [0.05]', flat: 10000 },
+          { name: 'Offset [0.1]', flat: 10000 },
+          { name: 'Offset [0.15]', flat: 10000 },
+          { name: 'Offset [0.2]', flat: 10000 },
+          { name: 'Offset [0.25]', flat: 10000 },
+          { name: 'Offset [0.3]', flat: 10000 },
+          { name: 'Offset [0.35]', flat: 10000 },
+          { name: 'Offset [0.4]', flat: 10000 }
+        ]
+      }
+    };
+
+    // ===== State =====
     let allCars = [];
     let filteredCars = [];
     let selectedCar = null;
+    let breakdownVisible = false;
 
+    // ===== Helpers =====
     function fmt(n) {
       return '$' + Math.round(n).toLocaleString();
     }
 
     function normalizeCar(car) {
+      if (!car || typeof car !== 'object' || Array.isArray(car)) return null;
       return {
-        CarName: car.CarName || 'Unknown',
-        PRICE: car.PRICE || 0,
+        CarName: car.CarName || 'Unknown Car',
         TYPE: car.TYPE || 'Unknown',
         NEWCAR: car.NEWCAR || false,
-        IMAGE: car.IMAGE || ''
+        PRICE: car.PRICE || 0
       };
     }
 
-    function renderCars() {
+    // ===== Render Car List =====
+    function renderCarList() {
 
-      const container = document.getElementById('card-container');
+  const container =
+    document.getElementById('card-container');
 
-      if (!filteredCars.length) {
-        container.innerHTML = `<p>No cars found.</p>`;
-        return;
-      }
+  if (!filteredCars.length) {
 
-      container.innerHTML = filteredCars.map(car => {
+    container.innerHTML =
+      '<p class="panel-left-empty">No cars found.</p>';
 
-        const selected =
-          selectedCar &&
-          selectedCar.CarName === car.CarName;
+    return;
+  }
 
-        return `
-          <div
-            class="car-card ${selected ? 'selected' : ''}"
-            onclick="selectCar('${car.CarName.replace(/'/g, "\\'")}')"
-          >
+  container.innerHTML = filteredCars.map(car => {
 
-            <img
-              src="${car.IMAGE || 'https://placehold.co/600x300'}"
-              alt="${car.CarName}"
-              class="card-image"
-            >
+    const selected =
+      selectedCar &&
+      selectedCar.CarName === car.CarName;
 
-            <div class="card-content">
+    const badges = [
+      car.NEWCAR
+        ? '<span class="badge new">NEW</span>'
+        : '',
 
-              <div class="badges">
-                ${car.NEWCAR ? `<span class="badge new">NEW</span>` : ''}
-                ${car.TYPE === 'Limited'
-                  ? `<span class="badge limited">LIMITED</span>`
-                  : ''}
-              </div>
+      car.TYPE === 'Limited'
+        ? '<span class="badge limited">LIMITED</span>'
+        : ''
+    ].join('');
 
-              <h3>${car.CarName}</h3>
+    return `
+      <div
+        class="car-card ${selected ? 'selected' : ''}"
+        onclick="selectCar('${car.CarName.replace(/'/g, "\\'")}')"
+      >
 
-              <p>${fmt(car.PRICE)}</p>
+        <div class="card-content">
 
-            </div>
-
+          <div class="badges">
+            ${badges}
           </div>
-        `;
 
-      }).join('');
-    }
+          <h3>${car.CarName}</h3>
 
+          <p>${car.TYPE}</p>
+
+          <strong>${fmt(car.PRICE)}</strong>
+
+        </div>
+
+      </div>
+    `;
+
+  }).join('');
+}
+
+    // ===== Filter =====
     function filterCars() {
-
-      const q =
-        document
-          .getElementById('carSearch')
-          .value
-          .toLowerCase();
-
-      filteredCars = allCars.filter(car =>
-        car.CarName.toLowerCase().includes(q)
-      );
-
-      renderCars();
+      const q = document.getElementById('carSearch').value.toLowerCase();
+      filteredCars = allCars.filter(c => c.CarName.toLowerCase().includes(q));
+      renderCarList();
     }
 
+    // ===== Select Car =====
     function selectCar(name) {
-
-      selectedCar =
-        allCars.find(c => c.CarName === name);
-
-      renderCars();
-      renderCalculator();
+      selectedCar = allCars.find(c => c.CarName === name) || null;
+      breakdownVisible = false;
+      renderCarList();
+      renderCalc();
     }
 
-    function renderCalculator() {
-
-      const right =
-        document.getElementById('panelRight');
+    // ===== Render Calculator =====
+    function renderCalc() {
+      const right = document.getElementById('panelRight');
 
       if (!selectedCar) {
-        right.innerHTML = `
-          <div class="calc-empty">
-            Select a car to calculate upgrade costs.
-          </div>
-        `;
+        right.innerHTML = '<div class="calc-empty">Select a car to calculate upgrade costs.</div>';
         return;
       }
 
-      let upgradesHTML = '';
+      const badges = [
+        selectedCar.NEWCAR ? '<span class="badge new">NEW</span>' : '',
+        selectedCar.TYPE === 'Limited' ? '<span class="badge limited">Limited</span>' : ''
+      ].join('');
 
-      Object.entries(UPGRADES).forEach(([group, options]) => {
-
-        upgradesHTML += `
+      let perfHTML = '';
+      Object.values(UPGRADES).forEach(group => {
+        let opts = '';
+        group.options.forEach((opt, i) => {
+          let costStr = '';
+          if (opt.flat !== undefined) {
+            costStr = opt.flat > 0 ? ' (+' + fmt(opt.flat) + ')' : '';
+          } else {
+            const cost = Math.round(selectedCar.PRICE * (opt.pct || 0));
+            costStr = cost > 0 ? ' (+' + fmt(cost) + ')' : '';
+          }
+          opts += `<option value="${i}">${opt.name}${costStr}</option>`;
+        });
+        perfHTML += `
           <div class="upgrade-group">
+            <label>${group.label}</label>
+            <select data-key="${group.key}" onchange="recalc()">${opts}</select>
+          </div>`;
+      });
 
-            <label>${group}</label>
-
-            <select onchange="recalc()">
-
-              ${options.map((opt, i) => {
-
-                const cost =
-                  Math.round(selectedCar.PRICE * opt[1]);
-
-                return `
-                  <option value="${cost}">
-                    ${opt[0]}
-                    ${cost > 0 ? `(+${fmt(cost)})` : ''}
-                  </option>
-                `;
-
-              }).join('')}
-
-            </select>
-
-          </div>
-        `;
+      let suspHTML = '';
+      Object.values(SUSPENSION).forEach(group => {
+        let opts = '';
+        group.options.forEach((opt, i) => {
+          const costStr = opt.flat > 0 ? ' (+' + fmt(opt.flat) + ')' : '';
+          opts += `<option value="${i}">${opt.name}${costStr}</option>`;
+        });
+        suspHTML += `
+          <div class="upgrade-group">
+            <label>${group.label}</label>
+            <select data-key="${group.key}" onchange="recalc()">${opts}</select>
+          </div>`;
       });
 
       right.innerHTML = `
         <div class="calc-card">
-
           <h2>${selectedCar.CarName}</h2>
-
-          <div class="base-price">
-            Base Price:
-            <strong>${fmt(selectedCar.PRICE)}</strong>
-          </div>
+          ${badges ? `<div class="badges">${badges}</div>` : ''}
+          <p class="base-price-tag">Base price: <strong>${fmt(selectedCar.PRICE)}</strong></p>
 
           <hr class="divider">
 
           <div class="upgrades-section">
-
             <h3>Performance Upgrades</h3>
+            <div class="upgrades-grid">${perfHTML}</div>
+          </div>
 
-            <div class="upgrades-grid">
-              ${upgradesHTML}
-            </div>
-
+          <div class="upgrades-section">
+            <h3>Suspension Upgrades</h3>
+            <div class="upgrades-grid">${suspHTML}</div>
           </div>
 
           <div class="summary-bar">
-
             <div class="summary-item">
-              <span>Base</span>
+              <span>Base Price</span>
               <span id="sumBase">${fmt(selectedCar.PRICE)}</span>
             </div>
-
+            <div class="summary-sep"></div>
             <div class="summary-item">
               <span>Upgrades</span>
               <span id="sumUpgrades">$0</span>
             </div>
-
+            <div class="summary-sep"></div>
             <div class="summary-item total">
               <span>Total</span>
               <span id="sumTotal">${fmt(selectedCar.PRICE)}</span>
             </div>
-
+            <button class="breakdown-btn" id="breakdownBtn" onclick="toggleBreakdown()">Breakdown</button>
           </div>
 
-        </div>
-      `;
+          <div class="breakdown-card" id="breakdownCard" style="display:none;">
+            <h3>Cost Breakdown</h3>
+            <table class="breakdown-table" id="breakdownTable"></table>
+          </div>
+        </div>`;
 
       recalc();
     }
 
+    // ===== Recalc =====
     function recalc() {
-
       if (!selectedCar) return;
 
-      let upgrades = 0;
+      const price = selectedCar.PRICE;
+      let upgradeTotal = 0;
+      const lines = [];
 
-      document
-        .querySelectorAll('select')
-        .forEach(select => {
-          upgrades += Number(select.value);
-        });
+      const allGroups = { ...UPGRADES, ...SUSPENSION };
 
-      document.getElementById('sumUpgrades')
-        .textContent = fmt(upgrades);
+      document.querySelectorAll('[data-key]').forEach(sel => {
+        const key = sel.dataset.key;
+        const group = Object.values(allGroups).find(g => g.key === key);
+        if (!group) return;
 
-      document.getElementById('sumTotal')
-        .textContent =
-          fmt(selectedCar.PRICE + upgrades);
-    }
+        const idx = parseInt(sel.value);
+        const opt = group.options[idx];
+        if (!opt) return;
 
-    fetch('https://carzonedb.github.io/assets/infojsons/cars.json')
+        let cost = 0;
+        if (opt.flat !== undefined) {
+          cost = opt.flat;
+        } else {
+          cost = Math.round(price * (opt.pct || 0));
+        }
 
-      .then(r => r.json())
-
-      .then(api => {
-
-        allCars =
-          Object
-            .values(api.data || {})
-            .map(normalizeCar)
-            .sort((a, b) =>
-              a.CarName.localeCompare(b.CarName)
-            );
-
-        filteredCars = allCars;
-
-        renderCars();
-
-      })
-
-      .catch(err => {
-
-        console.error(err);
-
-        document.getElementById('card-container')
-          .innerHTML =
-            `<p>Failed to load cars.</p>`;
+        if (cost > 0) {
+          lines.push({ label: group.label + ' — ' + opt.name, cost });
+          upgradeTotal += cost;
+        }
       });
 
-  </script>
+      document.getElementById('sumBase').textContent = fmt(price);
+      document.getElementById('sumUpgrades').textContent = fmt(upgradeTotal);
+      document.getElementById('sumTotal').textContent = fmt(price + upgradeTotal);
 
+      const table = document.getElementById('breakdownTable');
+      if (table) {
+        table.innerHTML = '';
+        lines.forEach(l => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${l.label}</td><td>${fmt(l.cost)}</td>`;
+          table.appendChild(tr);
+        });
+        const totRow = document.createElement('tr');
+        totRow.className = 'total-row';
+        totRow.innerHTML = `<td>Total (car + upgrades)</td><td>${fmt(price + upgradeTotal)}</td>`;
+        table.appendChild(totRow);
+      }
+    }
+
+    // ===== Toggle Breakdown =====
+    function toggleBreakdown() {
+      breakdownVisible = !breakdownVisible;
+      const card = document.getElementById('breakdownCard');
+      const btn = document.getElementById('breakdownBtn');
+      if (card) card.style.display = breakdownVisible ? 'block' : 'none';
+      if (btn) btn.classList.toggle('active', breakdownVisible);
+    }
+
+    // ===== Fetch Data =====
+    fetch('https://carzonedb.github.io/assets/infojsons/cars.json')
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+        return res.json();
+      })
+      .then(api => {
+        const rawCars = api.data || {};
+
+        allCars = Object.values(rawCars)
+          .map(normalizeCar)
+          .filter(Boolean)
+          .sort((a, b) => a.CarName.localeCompare(b.CarName));
+
+        filteredCars = allCars;
+        renderCarList();
+      })
+      .catch(err => {
+        console.error('Failed to load cars:', err);
+        document.getElementById('carListInner').innerHTML =
+          '<p class="panel-left-empty" style="color:#FF3B3B;">Failed to load car data.</p>';
+      });
+  </script>
 </body>
 </html>
