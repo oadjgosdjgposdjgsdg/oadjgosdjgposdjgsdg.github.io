@@ -1,12 +1,4 @@
 <style>
-:root {
-    --accent-color: rgb(142, 92, 246);
-    --background-color: rgb(36, 36, 36);
-    --foreground-color: rgb(43, 43, 43);
-    --border-color: rgb(58, 58, 58);
-    --text-color: rgb(241, 241, 241);
-    --font-family: 'Segoe UI', Arial, sans-serif;
-}
 
 html, body {
     margin: 0;
@@ -22,19 +14,22 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    padding-top: 64px;
 }
 
 /* ===== NAVBAR ===== */
-nav#navbar {
-    position: sticky;
+.navbar {
+    position: fixed;
     top: 0;
+    left: 0;
+    width: 100%;
     z-index: 300;
 
     background: var(--foreground-color);
     border-bottom: 1px solid var(--border-color);
 }
 
-nav#navbar ul {
+.navbar .nav-links {
     list-style: none;
 
     display: flex;
@@ -48,25 +43,29 @@ nav#navbar ul {
     box-sizing: border-box;
 }
 
-nav#navbar li {
+.navbar li {
+    display: flex;
+    align-items: center;
     flex: 0 0 auto;
 }
 
-nav#navbar .logo {
-    font-weight: 600;
-    font-size: 18px;
+/* ===== LOGO ===== */
+.navbar .logo {
+    display: flex;
+    align-items: center;
 
-    padding: 8px 18px;
-    border-radius: 12px;
-
-    background: var(--accent-color);
-    color: var(--text-color);
-
-    user-select: none;
-    white-space: nowrap;
+    padding: 0;
+    margin: 0;
 }
 
-nav#navbar a {
+.navbar .logo img {
+    height: 42px;
+    width: auto;
+    display: block;
+}
+
+/* ===== LINKS ===== */
+.navbar a {
     display: block;
 
     padding: 10px 20px;
@@ -79,49 +78,87 @@ nav#navbar a {
     white-space: nowrap;
 }
 
-nav#navbar a:hover {
+.navbar a:hover {
     background: var(--border-color);
     transform: scale(1.03);
 }
 
-nav#navbar a.active {
+.navbar a.active {
     font-weight: bold;
+}
+
+.nav-toggle {
+    display: none;
+    position: absolute;
+    right: 16px;
+    top: 14px;
+
+    font-size: 28px;
+    background: none;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
 }
 
 /* ===== MOBILE ===== */
 @media (max-width: 600px) {
-    nav#navbar ul {
+
+    .nav-toggle {
+        display: block;
+    }
+
+    .navbar .nav-links {
+        display: none;
         flex-direction: column;
         align-items: stretch;
 
         gap: 10px;
 
         padding: 10px;
-        min-height: unset;
     }
 
-    nav#navbar li {
+    .navbar.open .nav-links {
+        display: flex;
+    }
+
+    .navbar li {
+        width: 100%;
+    }
+
+    .navbar .logo,
+    .navbar a {
         width: 100%;
         box-sizing: border-box;
+        text-align: center;
     }
 
-    nav#navbar .logo,
-    nav#navbar a {
-        display: block;
-        width: auto;
-        text-align: center;
-        box-sizing: border-box;
+    body {
+        padding-top: 64px;
     }
 }
+
 </style>
 
-<body>
-    <nav id="navbar">
-        <ul>
-            <li class="logo">CarZoneDB</li>
-            <li><a href="/">Home</a></li>
-            <li><a href="/cars">Cars</a></li>
-            <li><a href="/races">Races</a></li>
-        </ul>
-    </nav>
-</body>
+<nav class="navbar">
+    <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
+
+    <ul class="nav-links">
+        <li class="logo">
+            <img src="https://carzonedb.github.io/assets/favicon.png" alt="CarZoneDB Logo">
+        </li>
+        <li><a href="https://carzonedb.github.io/">Home</a></li>
+        <li><a href="https://carzonedb.github.io/cars/">Cars</a></li>
+        <li><a href="https://carzonedb.github.io/races/">Races</a></li>
+        <li><a href="https://carzonedb.github.io/calculator/">Calculator</a></li>
+        <li><a href="https://discord.gg/9r4Hdkr2NA">Discord</a></li>
+    </ul>
+</nav>
+
+<script>
+    const navbar = document.querySelector(".navbar");
+    const toggle = document.querySelector(".nav-toggle");
+
+    toggle.addEventListener("click", () => {
+        navbar.classList.toggle("open");
+    });
+</script>
